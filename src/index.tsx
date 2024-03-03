@@ -3,11 +3,16 @@ import { FC, PropsWithChildren, createElement, useEffect, useMemo, useRef, useSt
 import { useSearchParams } from "react-router-dom";
 
 import { SpotifyContext } from "./spotify-context";
-import { SpotifyContext as SpotifyContextType, SpotifyReactProviderProps, SpotifyUser } from "./types";
+import {
+	SpotifyContext as SpotifyContextType,
+	SpotifyReactProviderProps,
+	SpotifyUser,
+	SpotifyWebApiReactContextUser,
+	SpotifyWebApiReactOptions,
+} from "./types";
 import { deleteStoredUser, getUser, retrieveStoredUser } from "./user";
 
 export { useSpotify } from "./use-spotify";
-
 export { useSpotifyQuery } from "./use-spotify-query";
 
 export const SpotifyWebApiReactProvider: FC<PropsWithChildren<SpotifyReactProviderProps>> = ({ options, children }) => {
@@ -95,4 +100,12 @@ export const SpotifyWebApiReactProvider: FC<PropsWithChildren<SpotifyReactProvid
 	);
 
 	return <SpotifyContext.Provider value={contextValue}>{children}</SpotifyContext.Provider>;
+};
+
+export {
+	SpotifyContext as SpotifyContextType,
+	SpotifyReactProviderProps,
+	SpotifyUser,
+	SpotifyWebApiReactContextUser,
+	SpotifyWebApiReactOptions,
 };
