@@ -5,6 +5,7 @@
 		"jsx": "react",
 		"outDir": "dist",
 		"module": "ESNext",
+		"declaration": true,
 		"moduleResolution": "Bundler",
 		"jsxFactory": "createElement",
 		"jsxFragmentFactory": "Fragment"
