@@ -105,7 +105,7 @@ export const SpotifyWebApiReactProvider: FC<PropsWithChildren<SpotifyReactProvid
 			logout,
 			user,
 		}),
-		[isAuthenticated, error, user],
+		[isAuthenticated, error, loading, user],
 	);
 
 	return <SpotifyContext.Provider value={contextValue}>{children}</SpotifyContext.Provider>;
