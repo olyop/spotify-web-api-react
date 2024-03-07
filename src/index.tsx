@@ -1,4 +1,5 @@
-import { LocalStorageProvider, SpotifyOptions, SpotifyWebApiClient, StorageProvider } from "@oly_op/spotify-web-api";
+import { IndexedDbProvider, LocalStorageProvider, SpotifyWebApiClient, StorageProvider } from "@oly_op/spotify-web-api";
+import { CacheProvider } from "@oly_op/spotify-web-api/dist/types";
 import { FC, PropsWithChildren, createElement, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -15,32 +16,32 @@ import { deleteStoredUser, getUser, retrieveStoredUser } from "./user";
 export { useSpotify } from "./use-spotify";
 export { useSpotifyQuery } from "./use-spotify-query";
 
-export const SpotifyWebApiReactProvider: FC<PropsWithChildren<SpotifyReactProviderProps>> = ({ options, children }) => {
+export const SpotifyWebApiReactProvider: FC<PropsWithChildren<SpotifyReactProviderProps>> = ({
+	client,
+	options,
+	children,
+}) => {
 	const [searchParams, setSearchParams] = useSearchParams();
+	const [loading, setLoading] = useState(true);
 
 	const authorizationCode = searchParams.get("code");
 
-	const { defaultProfileImagePath, ...otherApiOptions } = options;
+	const handleDatabaseReady = () => {
+		setLoading(false);
+	};
 
 	const storageProviderRef = useRef<StorageProvider>(new LocalStorageProvider());
 
+	const cacheProviderRef = useRef<CacheProvider>(
+		new IndexedDbProvider("spotify-web-api", "cache", handleDatabaseReady),
+	);
+
 	const initialIsAuthenticated = SpotifyWebApiClient.isAuthenticatedInitial(storageProviderRef.current);
-	const initialIsLoading = SpotifyWebApiClient.isLoadingInitial(authorizationCode);
 
 	const [error, setError] = useState<Error | null>(null);
-	const [isLoading, setIsLoading] = useState(initialIsLoading);
 	const [isAuthenticated, setIsAuthenticated] = useState(initialIsAuthenticated);
 
-	const apiOptions: SpotifyOptions = {
-		...otherApiOptions,
-		authorizationCode,
-		storageProvider: storageProviderRef.current,
-		onErrorChange: setError,
-		onLoadingChange: setIsLoading,
-		onAuthenticatedChange: setIsAuthenticated,
-	};
-
-	const clientRef = useRef<SpotifyWebApiClient>(new SpotifyWebApiClient(apiOptions));
+	const clientRef = useRef<SpotifyWebApiClient>(client);
 
 	const [user, setUser] = useState<SpotifyUser | null>(retrieveStoredUser());
 
@@ -58,7 +59,7 @@ export const SpotifyWebApiReactProvider: FC<PropsWithChildren<SpotifyReactProvid
 	};
 
 	const handleUser = async () => {
-		const userValue = await getUser(clientRef.current, options);
+		const userValue = await getUser(clientRef.current, options?.defaultProfileImagePath);
 
 		if (userValue !== null) {
 			setUser(userValue);
@@ -75,10 +76,18 @@ export const SpotifyWebApiReactProvider: FC<PropsWithChildren<SpotifyReactProvid
 	};
 
 	useEffect(() => {
-		if (isAuthenticated && user === null) {
+		if (loading) {
+			client.setOptions({
+				shouldAutoLogin: false,
+				onAuthenticatedChange: setIsAuthenticated,
+				onErrorChange: setError,
+				storageProvider: storageProviderRef.current,
+				cacheProvider: cacheProviderRef.current,
+			});
+		} else if (user === null) {
 			void handleUser();
 		}
-	}, [isAuthenticated]);
+	}, [user, loading]);
 
 	useEffect(() => {
 		if (authorizationCode) {
@@ -90,13 +99,13 @@ export const SpotifyWebApiReactProvider: FC<PropsWithChildren<SpotifyReactProvid
 		() => ({
 			client: clientRef.current,
 			isAuthenticated,
-			isLoading,
+			loading,
 			error,
 			login,
 			logout,
 			user,
 		}),
-		[isAuthenticated, isLoading, error, user],
+		[isAuthenticated, error, user],
 	);
 
 	return <SpotifyContext.Provider value={contextValue}>{children}</SpotifyContext.Provider>;

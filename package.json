@@ -1,7 +1,7 @@
 {
 	"type": "module",
 	"name": "@oly_op/spotify-web-api-react",
-	"version": "0.1.5",
+	"version": "0.1.7",
 	"description": "auth0-js like implementation for interacting with the Spotify WEB API",
 	"homepage": "https://github.com/olyop/spotify-web-api#readme",
 	"bugs": {
@@ -32,15 +32,15 @@
 		"postpublish": "git add -A && git commit -m 'Publish' && git push"
 	},
 	"devDependencies": {
-		"@oly_op/cspell-dict": "1.1.9",
+		"@oly_op/cspell-dict": "1.1.10",
 		"@oly_op/eslint-config": "6.7.20",
-		"@oly_op/eslint-config-react": "4.3.4",
+		"@oly_op/eslint-config-react": "4.3.5",
 		"@oly_op/prettier-config": "1.8.2",
-		"@oly_op/spotify-web-api": "0.1.9",
+		"@oly_op/spotify-web-api": "0.1.17",
 		"@oly_op/tsconfig": "1.2.1",
-		"@types/node": "20.11.24",
-		"@types/react": "18.2.61",
-		"@types/react-dom": "18.2.19",
+		"@types/node": "20.11.25",
+		"@types/react": "18.2.64",
+		"@types/react-dom": "18.2.21",
 		"npm-check-updates": "16.14.15",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",

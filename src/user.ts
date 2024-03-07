@@ -1,17 +1,17 @@
 import { SpotifyWebApiClient } from "@oly_op/spotify-web-api";
 
-import { SpotifyUser, SpotifyWebApiReactOptions } from "./types";
+import { SpotifyUser } from "./types";
 
 const USER_LOCAL_STORAGE_KEY = "spotify-web-api-react.authuser";
 
-export async function getUser(client: SpotifyWebApiClient, options: SpotifyWebApiReactOptions) {
+export async function getUser(client: SpotifyWebApiClient, defaultProfileImagePath: string | undefined) {
 	if (!client.isAuthenticated) return null;
 
 	if (retrieveStoredUser() !== null) return null;
 
 	const data = await client.query<Record<string, unknown>>("GET", "me");
 
-	const user = convertUserData(data, options);
+	const user = convertUserData(data, defaultProfileImagePath);
 
 	localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(user));
 
@@ -30,7 +30,7 @@ export function deleteStoredUser() {
 	localStorage.removeItem(USER_LOCAL_STORAGE_KEY);
 }
 
-export function convertUserData(data: Record<string, unknown>, options: SpotifyWebApiReactOptions) {
+export function convertUserData(data: Record<string, unknown>, defaultProfileImagePath = "") {
 	const idData = data["id"];
 	const nameData = data["display_name"];
 	const emailAddressData = data["email"];
@@ -49,7 +49,7 @@ export function convertUserData(data: Record<string, unknown>, options: SpotifyW
 		throw new TypeError("No user email address found");
 	}
 
-	let photoUrl: string = options.defaultProfileImagePath;
+	let photoUrl = defaultProfileImagePath;
 
 	if (Array.isArray(photoUrlData)) {
 		const photoUrlDataTyped = photoUrlData as Record<string, unknown>[];
@@ -59,7 +59,11 @@ export function convertUserData(data: Record<string, unknown>, options: SpotifyW
 			const photoUrlImageData = photoUrlDataTyped[0];
 
 			if (typeof photoUrlImageData === "object") {
-				photoUrl = (photoUrlImageData as Record<string, string>)["url"] as string;
+				const dataUrl = photoUrlImageData["url"];
+
+				if (typeof dataUrl === "string") {
+					photoUrl = dataUrl;
+				}
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-import { SpotifyQueryHttpMethod, SpotifyQueryRequestData } from "@oly_op/spotify-web-api";
+import { SpotifyQueryHttpMethod, SpotifyWebApiClientQueryOptions } from "@oly_op/spotify-web-api";
 import { useEffect, useState } from "react";
 
 import { useSpotify } from "./use-spotify";
@@ -6,7 +6,7 @@ import { useSpotify } from "./use-spotify";
 export const useSpotifyQuery = <T extends Record<string, unknown>>(
 	method: SpotifyQueryHttpMethod,
 	path: string,
-	requestData?: SpotifyQueryRequestData,
+	options?: SpotifyWebApiClientQueryOptions,
 ) => {
 	const { client, isAuthenticated } = useSpotify();
 
@@ -21,7 +21,7 @@ export const useSpotifyQuery = <T extends Record<string, unknown>>(
 		setData(null);
 
 		try {
-			const response = await client.query<T>(method, path, requestData);
+			const response = await client.query<T>(method, path, options);
 
 			setData(response);
 		} catch (requestError) {
